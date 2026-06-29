@@ -80,6 +80,10 @@ h2.title{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.15;m
 
 .weight-card{margin-top:var(--s4);background:radial-gradient(120% 90% at 100% 0%,var(--pine-soft) 0%,transparent 55%),var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);padding:var(--s5) var(--s5) var(--s4);box-shadow:var(--shadow-sm);}
 .weight-card .lbl{font-size:12.5px;font-weight:600;color:var(--ink-2);display:flex;align-items:center;gap:6px;}
+.weigh-collapsed{margin-top:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-sm);}
+.weigh-collapsed summary{list-style:none;padding:var(--s4);cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-2);}
+.weigh-collapsed summary::-webkit-details-marker{display:none;}
+.weigh-collapsed .wbody{padding:0 var(--s4) var(--s4);}
 .stepper{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-top:var(--s2);}
 .stepper button{width:54px;height:54px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line-2);display:grid;place-items:center;color:var(--pine-d);transition:transform .12s,background .15s;box-shadow:var(--shadow-sm);}
 .stepper button:active{transform:scale(.92);background:var(--pine-soft);}
@@ -561,6 +565,17 @@ function ensureForm(){const ds=todayStr();if(state.form.log_date!==ds){const rec
 /* ============ 今日（用户） ============ */
 function recordFor(ds){return state.rows.find(r=>r.log_date===ds);}
 function lastWeight(){const r=[...state.rows].reverse().find(r=>r.weight);return r?r.weight:state.cfg.profile.start_weight;}
+function lastWeightRec(){return [...state.rows].reverse().find(r=>r.weight)||null;}
+function weighCardHTML(f){
+  const lw=lastWeightRec(), days=lw?Math.round((parseD(todayStr())-parseD(lw.log_date))/86400000):null, due=!lw||days>=7;
+  const stepper=`<div class="stepper"><button id="wMinus">${I.minus}</button>
+      <div class="wval"><input id="wInput" class="num" type="number" inputmode="decimal" step="0.1" value="${f.weight||''}" placeholder="${lw?lw.weight:'--'}"><span class="u">kg</span></div>
+      <button id="wPlus">${I.plus}</button></div><div class="wdelta" id="wDelta"></div>
+      <button class="submit" id="weighSave">${I.check}<span>记录体重</span></button>`;
+  if(due) return `<div class="weight-card"><div class="lbl">${I.spark} 本周称重 · 晨起空腹（每周一次就好，别天天称）</div>${stepper}</div>`;
+  return `<details class="weigh-collapsed"><summary>⚖️ 上次 ${lw.weight}kg · ${days} 天前 · 本周不用再称，想记可点开</summary><div class="wbody">${stepper}</div></details>`;
+}
+function saveWeigh(){const v=parseFloat($('#wInput').value);if(!v){toast('先输入体重');return;}state.form.weight=v;saveToday();toast('体重已记录 · 下周再称就行');renderToday();}
 function renderToday(){
   const ds=todayStr(),pl=planForDate(ds),rec=recordFor(ds),d=parseD(ds);
   const f=ensureForm();
@@ -570,10 +585,7 @@ function renderToday(){
   $('#view-today').innerHTML=`
     <div class="today-head"><div><div class="eyebrow">${WK[d.getDay()]} · ${d.getMonth()+1}月${d.getDate()}日</div><h2 class="title">今天，记一笔</h2></div>
       <div class="planpill ${isRest?'rest':''}"><span class="g">${isRest?'休':pl.type}</span>${planLabel}</div></div>
-    <div class="weight-card"><div class="lbl">${I.spark} 晨起空腹体重</div>
-      <div class="stepper"><button id="wMinus">${I.minus}</button>
-        <div class="wval"><input id="wInput" class="num" type="number" inputmode="decimal" step="0.1" value="${f.weight||''}" placeholder="--"><span class="u">kg</span></div>
-        <button id="wPlus">${I.plus}</button></div><div class="wdelta" id="wDelta"></div></div>
+    ${weighCardHTML(f)}
 
     <div class="diet-link" id="dietLink"><div class="l"><div class="k">今日饮食 · ${isRest?'休息日':'力训日'}</div>
       <div class="v"><span class="c">${cT.toFixed(0)}</span><small>/${q.carb}碳</small> · <span class="p">${pT.toFixed(0)}</span><small>/${q.protein}蛋</small></div></div>
@@ -602,9 +614,12 @@ function mini(name,lbl,u,val){return `<div class="mini"><div class="lbl">${lbl}<
 function updateDelta(){const v=parseFloat($('#wInput').value),el=$('#wDelta');if(!el)return;if(!v){el.innerHTML='';return;}const P=state.cfg.profile;el.innerHTML=`较起始 <b>${v-P.start_weight>0?'+':''}${(v-P.start_weight).toFixed(1)}kg</b> · 距目标 <b>${(v-P.target_weight).toFixed(1)}kg</b>`;}
 function bindToday(){
   const wi=$('#wInput');
-  $('#wMinus').onclick=()=>{wi.value=((parseFloat(wi.value)||lastWeight())-0.1).toFixed(1);state.form.weight=+wi.value;updateDelta();};
-  $('#wPlus').onclick=()=>{wi.value=((parseFloat(wi.value)||lastWeight())+0.1).toFixed(1);state.form.weight=+wi.value;updateDelta();};
-  wi.oninput=()=>{state.form.weight=parseFloat(wi.value)||'';updateDelta();};
+  if(wi){
+    $('#wMinus').onclick=()=>{wi.value=((parseFloat(wi.value)||lastWeight())-0.1).toFixed(1);state.form.weight=+wi.value;updateDelta();};
+    $('#wPlus').onclick=()=>{wi.value=((parseFloat(wi.value)||lastWeight())+0.1).toFixed(1);state.form.weight=+wi.value;updateDelta();};
+    wi.oninput=()=>{state.form.weight=parseFloat(wi.value)||'';updateDelta();};
+    const ws=$('#weighSave');if(ws)ws.onclick=saveWeigh;
+  }
   document.querySelectorAll('#view-today input[type=radio]').forEach(r=>r.onchange=()=>state.form[r.name]=r.value);
   ['steps','sleep','water'].forEach(k=>{const m=$('#m_'+k);if(m)m.oninput=()=>state.form[k]=m.value;});
   const nt=$('#noteInput');if(nt)nt.oninput=()=>state.form.note=nt.value;
@@ -620,7 +635,7 @@ async function saveToday(){
 function removeFood(i){state.form.foods.splice(i,1);saveToday();renderDiet();}
 function addFood(item){ensureForm();state.form.foods.push(item);saveToday();closeSheet();toast(`已加 ${item.n}`);renderDiet();}
 async function submit(){
-  ensureForm();const f=state.form;if(!f.weight){toast('先记一下今天的体重 🙂');$('#wInput').focus();return;}
+  ensureForm();const f=state.form;
   const btn=$('#submitBtn');btn.style.opacity='.6';btn.style.pointerEvents='none';
   await saveToday();btn.style.opacity='';btn.style.pointerEvents='';
   toast(f.back==='明显'?'已保存 · 腰部不适已记录，注意降量':'打卡成功 · 坚持就是胜利');
