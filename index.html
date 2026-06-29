@@ -415,9 +415,9 @@ const DEFAULTS={
   profile:{ name:'冯总', age:30, height:189, start_date:'2026-06-29', start_weight:102, target_weight:85 },
   quota:{ train:{carb:245,protein:133,fat:60}, rest:{carb:214,protein:133,fat:60} },
   plan:{
-    core:[['90-90 呼吸 / 三腔对位','2×5 次呼吸'],['改良卷腹(麦吉尔)','3×8'],['侧平板支撑','3×20-30秒/侧'],['鸟狗','3×8/侧'],['死虫','3×8/侧'],['帕洛夫抗旋推','3×10/侧'],['农夫行走','3×20米']],
-    A:[['器械推胸 / 哑铃卧推','水平推','3-4×8-12'],['胸部支撑哑铃划船','水平拉·腰不受力','3-4×10-12'],['高位下拉','垂直拉·进阶引体','3-4×8-12'],['坐姿哑铃肩推','有靠背','2-3×10-12'],['面拉','改善圆肩','2-3×15']],
-    B:[['高脚杯深蹲','上身直立·护腰','3-4×8-12'],['臀桥 / 臀冲','髋铰链入门·脊柱零负荷','3-4×10-12'],['罗马尼亚硬拉 RDL','极轻·中立脊柱','3-4×10-12'],['保加利亚分腿蹲','膝稳定·平衡','2-3×10/腿'],['坐姿腿弯举','','2-3×12'],['提踵','','2-3×15']],
+    core:[['90-90 呼吸 / 三腔对位','2×5 次呼吸'],['死虫','2×8/侧'],['鸟狗','2×8/侧']],
+    A:[['跪姿俯卧撑','推 · 恢复功能(目标)','3 × 力竭前留2-3'],['辅助引体向上(弹力带)','垂直拉 · 恢复功能(目标)','3 × 6-10'],['坐姿哑铃肩推','肩 · 垂直推激活','2-3 × 10-12'],['胸部支撑哑铃划船','水平拉 · 腰不受力','2-3 × 10-12'],['面拉','肩后 · 改善圆肩','2 × 15']],
+    B:[['高脚杯深蹲','蹲 · 主项 · 上身直立','3-4 × 8-12'],['罗马尼亚硬拉 RDL','髋铰链 · 主项 · 极轻中立脊柱','3-4 × 10-12'],['哥萨克深蹲 / 侧向弓步','侧向移动 · 内收肌','2 × 8/侧'],['弹力带髋外展 / 蚌式','外展肌 · 臀中肌激活','2 × 12/侧'],['臀桥','髋 · 臀激活','2-3 × 12']],
   },
 };
 
@@ -797,11 +797,11 @@ function renderPlan(){
   const exs=P[cur]||P.A;
   $('#view-plan').innerHTML=`
     <div class="eyebrow">健身房 · 腰椎安全</div><h2 class="title">训练计划</h2>
-    <p class="sub">动作标准 &gt; 重量 · 力竭前留 2-3 次余力 · 腰一代偿立即降重</p>
+    <p class="sub">第 1-2 周 · 激活 + 建立身体感知（大肌群 / 复合动作为主）· 动作标准 &gt; 重量，腰一代偿就降重</p>
     <div class="switch"><button data-pt="today" class="${state.planTab==='today'?'on':''}">今日</button><button data-pt="A" class="${state.planTab==='A'?'on':''}">A 上肢</button><button data-pt="B" class="${state.planTab==='B'?'on':''}">B 下肢</button></div>
-    <div class="core-note">${I.spark}<div><b>核心稳定模块</b> · 每次训练必做，护腰根基，练抗动不练屈曲</div></div>
+    <div class="core-note">${I.spark}<div><b>热身激活</b> · 每次训练前做 2-3 个，唤醒身体、护腰，不用多</div></div>
     ${P.core.map((c,i)=>`<div class="ex"><div class="n">${i+1}</div><div class="nm">${c[0]}</div><div class="tg">${c[1]}</div></div>`).join('')}
-    <div class="section-h"><h3>${cur} · ${cur==='A'?'上肢日':'下肢日'}</h3><div class="ln"></div><div class="meta">${cur==='A'?'推 / 拉 / 肩':'蹲 / 髋铰链 / 单腿'}</div></div>
+    <div class="section-h"><h3>${cur} · ${cur==='A'?'上肢日':'下肢日'}</h3><div class="ln"></div><div class="meta">${cur==='A'?'推 / 拉 / 肩':'蹲 / 髋铰链 / 侧向 / 激活'}</div></div>
     ${exs.map((e,i)=>`<div class="ex"><div class="n">${i+1}</div><div class="nm">${e[0]}${e[1]?`<small>${e[1]}</small>`:''}</div><div class="tg">${e[2]}</div></div>`).join('')}
     <div class="section-h"><h3>饮食配额</h3><div class="ln"></div></div>
     <div class="macro"><div class="m"><b>${Q.train.carb}</b><span>力训日碳水 g</span></div><div class="m"><b>${Q.train.protein}</b><span>蛋白 g</span></div><div class="m"><b>${Q.train.fat}</b><span>脂肪 g</span></div></div>
@@ -885,7 +885,7 @@ function renderDesign(){
         <div class="lab">力训日</div>${qin('q_tc',Q.train.carb)}${qin('q_tp',Q.train.protein)}${qin('q_tf',Q.train.fat)}
         <div class="lab">休息日</div>${qin('q_rc',Q.rest.carb)}${qin('q_rp',Q.rest.protein)}${qin('q_rf',Q.rest.fat)}</div></div>
     <div class="dgroup"><h3>③ 训练动作</h3>
-      <div class="subh">核心稳定模块</div><div id="ed_core">${Pl.core.map((e,i)=>exedit('core',i,e[0],e[1])).join('')}</div><button class="addrow" data-add="core">${I.plus} 加一行</button>
+      <div class="subh">热身激活（2-3个）</div><div id="ed_core">${Pl.core.map((e,i)=>exedit('core',i,e[0],e[1])).join('')}</div><button class="addrow" data-add="core">${I.plus} 加一行</button>
       <div class="subh">A · 上肢日</div><div id="ed_A">${Pl.A.map((e,i)=>exedit('A',i,e[0],e[2])).join('')}</div><button class="addrow" data-add="A">${I.plus} 加一行</button>
       <div class="subh">B · 下肢日</div><div id="ed_B">${Pl.B.map((e,i)=>exedit('B',i,e[0],e[2])).join('')}</div><button class="addrow" data-add="B">${I.plus} 加一行</button></div>
     <button class="submit" id="saveDesign">${I.check}<span>保存方案</span></button>`;
