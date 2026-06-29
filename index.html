@@ -317,6 +317,32 @@ nav.tabbar button span{font-size:10.5px;font-weight:600;}
 .amtres{text-align:center;font-size:13px;color:var(--ink-2);margin-bottom:var(--s4);}
 .amtres b{font-family:var(--font-num);}
 .amtres .c{color:var(--pine-d);}.amtres .p{color:var(--blue);}
+.ai-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:var(--s2) var(--s5) var(--s3);}
+.ai-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:var(--r-md);background:var(--clay-soft);color:var(--clay-d);font-size:15px;font-weight:700;transition:filter .15s;}
+.ai-btn svg{width:20px;height:20px;}
+.ai-btn:active{filter:brightness(.96);}
+.ai-or{text-align:center;font-size:11.5px;color:var(--ink-3);font-weight:600;margin:0 0 var(--s2);}
+.ai-body{padding:var(--s4) var(--s5) calc(var(--s6) + env(safe-area-inset-bottom));overflow-y:auto;}
+.ai-rec{text-align:center;padding:var(--s5) 0;}
+.ai-rec .pulse{width:90px;height:90px;border-radius:var(--r-full);background:var(--danger-soft);color:var(--danger);display:grid;place-items:center;margin:0 auto var(--s4);animation:pulse 1.3s ease-in-out infinite;}
+.ai-rec .pulse svg{width:38px;height:38px;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 oklch(0.565 0.16 28 /.35);}50%{box-shadow:0 0 0 18px oklch(0.565 0.16 28 /0);}}
+.ai-load{text-align:center;padding:var(--s7) 0;}
+.spinner{width:44px;height:44px;border-radius:var(--r-full);border:3.5px solid var(--pine-soft);border-top-color:var(--pine);margin:0 auto var(--s4);animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-tip{font-size:13px;color:var(--ink-2);text-align:center;}
+.ai-note{font-size:12.5px;color:var(--ink-2);background:var(--surface-2);padding:9px 12px;border-radius:var(--r-sm);margin-bottom:var(--s2);line-height:1.5;}
+.ai-warn{font-size:12.5px;color:var(--danger);background:var(--danger-soft);padding:9px 12px;border-radius:var(--r-sm);margin-bottom:var(--s3);display:flex;gap:7px;align-items:flex-start;line-height:1.5;}
+.ai-warn svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
+.ai-err{display:flex;gap:9px;align-items:center;color:var(--danger);background:var(--danger-soft);padding:var(--s3) var(--s4);border-radius:var(--r-md);font-size:13.5px;font-weight:600;margin-bottom:var(--s3);}
+.ai-err svg{width:18px;height:18px;flex-shrink:0;}
+.ai-items{margin-bottom:var(--s4);}
+.ai-item{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;border-bottom:1px solid var(--line);}
+.ai-item .ii{flex:1;}.ai-item .ii b{font-size:14.5px;font-weight:600;}.ai-item .ii small{color:var(--ink-3);margin-left:5px;font-family:var(--font-num);}
+.ai-item .im{font-family:var(--font-num);font-size:12.5px;font-weight:600;color:var(--ink-2);}
+.ai-item .im .c{color:var(--pine-d);}.ai-item .im .p{color:var(--blue);}
+.ai-item .del{width:28px;height:28px;border-radius:var(--r-full);display:grid;place-items:center;color:var(--ink-3);background:var(--surface-2);}
+.ai-item .del svg{width:14px;height:14px;}
 </style>
 </head>
 <body>
@@ -454,6 +480,8 @@ const I={
  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>',
  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
+ mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg>',
+ cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4l-1.5-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>',
 };
 const NAV={
  today:['今日','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'],
@@ -571,22 +599,27 @@ function renderDiet(){
 }
 
 /* ============ 食物选择 bottom sheet ============ */
-function openFoodSheet(meal){state.sheet={cat:'全部',q:'',food:null,amt:0,meal:meal||'午饭'};renderSheet();showSheet();}
+function openFoodSheet(meal){state.sheet={cat:'全部',q:'',food:null,amt:0,meal:meal||'午饭',mode:'manual',aiStatus:'idle',ai:null};renderSheet();showSheet();}
 function showSheet(){$('#overlay').classList.add('show');$('#sheet').classList.add('show');}
 function closeSheet(){$('#overlay').classList.remove('show');$('#sheet').classList.remove('show');state.sheet=null;}
 $('#overlay').onclick=closeSheet;
 function renderSheet(){
   const s=state.sheet;if(!s)return;
+  if(s.mode==='ai'){renderAiPanel();return;}
   if(s.food){renderAmt();return;}
   const cats=['全部','主食','水果','蛋白'];
   const list=FOODS.filter(x=>(s.cat==='全部'||x.c===s.cat)&&(!s.q||x.f.includes(s.q)));
   $('#sheet').innerHTML=`<div class="grip"></div>
     <div class="sh-h"><h3>记录食物${s.meal?' · '+s.meal:''}</h3><button id="shClose">关闭</button></div>
+    <div class="ai-row"><button class="ai-btn" id="aiVoice">${I.mic}<span>说一句</span></button><button class="ai-btn" id="aiPhoto">${I.cam}<span>拍照</span></button></div>
+    <div class="ai-or">或手动搜索</div>
     <div class="searchbar"><input id="shSearch" placeholder="搜食物，如 米饭 / 鸡胸 / 香蕉" value="${s.q}"></div>
     <div class="chips">${cats.map(c=>`<button data-c="${c}" class="${s.cat===c?'on':''}">${c}</button>`).join('')}</div>
     <div class="foodscroll">${list.map((x,i)=>{const idx=FOODS.indexOf(x);const rate=x.cb?`<span class="rate c">${x.u==='g'?x.cb+'%碳':x.cb+'碳/'+x.u.replace(/\(.*\)/,'')}</span>`:'';const prate=x.pr?`<span class="rate p">${x.u==='g'?x.pr+'%蛋':x.pr+'蛋/'+x.u.replace(/\(.*\)/,'')}</span>`:'';
       return `<div class="frow" data-idx="${idx}"><div class="fi"><b>${x.f}</b><small>${x.c}${x.gi?' · GI'+x.gi:''} · 按${x.u==='g'?'克':x.u}计</small></div>${rate}${prate}</div>`;}).join('')||'<div class="diet-empty" style="padding:40px 0">没找到，换个词试试</div>'}</div>`;
   $('#shClose').onclick=closeSheet;
+  $('#aiVoice').onclick=startVoice;
+  $('#aiPhoto').onclick=pickPhoto;
   $('#shSearch').oninput=e=>{s.q=e.target.value;renderSheet();};
   $('#sheet').querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{s.cat=b.dataset.c;renderSheet();});
   $('#sheet').querySelectorAll('.frow').forEach(r=>r.onclick=()=>{s.food=FOODS[+r.dataset.idx];s.amt=s.food.u==='g'?100:1;renderSheet();});
@@ -612,6 +645,64 @@ function renderAmt(){
   ai.oninput=upd;
   $('#sheet').querySelectorAll('.presets button').forEach(b=>b.onclick=()=>{ai.value=b.dataset.p;upd();});
   $('#aAdd').onclick=()=>{const r=compFood({u:x.u,cb:x.cb,pr:x.pr,a:s.amt});addFood({n:x.f,u:x.u,a:s.amt,carb:r.carb,prot:r.prot,meal:s.meal});};
+}
+
+/* ============ AI 记录（语音 / 拍照 → step-3.7-flash 按松松营养率换算） ============ */
+function blobToB64(blob){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.readAsDataURL(blob);});}
+function fileToDataURL(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(file);});}
+async function compressImage(file,max=1024,q=0.82){
+  const durl=await fileToDataURL(file);
+  return new Promise(res=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>max||h>max){if(w>=h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{res(c.toDataURL('image/jpeg',q));}catch(e){res(durl);}};img.onerror=()=>res(durl);img.src=durl;});
+}
+let _rec=null,_chunks=[];
+async function startVoice(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('此浏览器不支持录音，请用拍照或手动');return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    _chunks=[];_rec=new MediaRecorder(stream);
+    _rec.ondataavailable=e=>{if(e.data&&e.data.size)_chunks.push(e.data);};
+    _rec.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());const blob=new Blob(_chunks,{type:_rec.mimeType||'audio/webm'});const b64=await blobToB64(blob);callAI({kind:'audio',audio:b64,mime:_rec.mimeType,meal:state.sheet.meal});};
+    _rec.start();state.sheet.mode='ai';state.sheet.aiStatus='recording';renderSheet();
+  }catch(e){toast('需要麦克风权限才能语音记录');}
+}
+function stopVoice(){if(_rec&&_rec.state!=='inactive'){state.sheet.aiStatus='loading';renderSheet();_rec.stop();}}
+function pickPhoto(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.setAttribute('capture','environment');
+  inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;state.sheet.mode='ai';state.sheet.aiStatus='loading';renderSheet();const img=await compressImage(f);callAI({kind:'image',image:img,meal:state.sheet.meal});};
+  inp.click();
+}
+async function callAI(payload){
+  if(!state.sheet)return;
+  state.sheet.mode='ai';state.sheet.aiStatus='loading';state.sheet.ai=null;renderSheet();
+  try{
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/diet-ai`,{method:'POST',headers:{'Content-Type':'application/json','apikey':CONFIG.SUPABASE_ANON_KEY,'Authorization':`Bearer ${CONFIG.SUPABASE_ANON_KEY}`},body:JSON.stringify(payload)});
+    const j=await r.json();
+    if(j.error){state.sheet.aiStatus='error';state.sheet.aiErr='AI 服务出错：'+j.error;}
+    else if(!j.items||!j.items.length){state.sheet.aiStatus='error';state.sheet.aiErr=j.note||'没识别到食物，换种说法或手动添加';state.sheet.transcript=j.transcript||'';}
+    else{state.sheet.aiStatus='done';state.sheet.ai=j;}
+  }catch(e){state.sheet.aiStatus='error';state.sheet.aiErr='连接失败（AI 函数 diet-ai 可能还没部署）';}
+  if(state.sheet)renderSheet();
+}
+function renderAiPanel(){
+  const s=state.sheet,st=s.aiStatus;let inner='';
+  if(st==='recording')inner=`<div class="ai-rec"><div class="pulse">${I.mic}</div><div class="ai-tip">正在听… 说出你吃了啥，说完点下面</div><button class="submit" id="aiStop">${I.check}<span>停止并识别</span></button></div>`;
+  else if(st==='loading')inner=`<div class="ai-load"><div class="spinner"></div><div class="ai-tip">AI 正按松松营养率分析中…</div></div>`;
+  else if(st==='error')inner=`<div class="ai-err">${I.warn}<div>${s.aiErr||'识别失败'}</div></div>${s.transcript?`<div class="ai-tip">🗣 听到：“${s.transcript}”</div>`:''}<button class="addf" id="aiBack">改用手动添加</button>`;
+  else if(st==='done'){const a=s.ai;inner=`${a.transcript?`<div class="ai-tip" style="text-align:left;margin-bottom:8px">🗣 听到：“${a.transcript}”</div>`:''}
+    ${a.note?`<div class="ai-note">${a.note}</div>`:''}${a.warn?`<div class="ai-warn">${I.warn}<div>${a.warn}</div></div>`:''}
+    <div class="ai-items">${a.items.map((it,i)=>`<div class="ai-item"><div class="ii"><b>${it.name}</b><small>${it.amount}${it.unit==='g'?'g':'×'+String(it.unit).replace(/\(.*\)/,'')}</small></div><div class="im">${it.carb?`<b class="c">${it.carb}</b>碳 `:''}${it.protein?`<b class="p">${it.protein}</b>蛋`:''}</div><button class="del" data-i="${i}">${I.x}</button></div>`).join('')}</div>
+    <button class="submit" id="aiAddAll">${I.check}<span>全部加入 ${s.meal}</span></button><button class="addf" id="aiBack" style="margin-top:8px">手动添加更多</button>`;}
+  $('#sheet').innerHTML=`<div class="grip"></div><div class="sh-h"><h3>AI 记录 · ${s.meal}</h3><button id="shClose">关闭</button></div><div class="ai-body">${inner}</div>`;
+  $('#shClose').onclick=closeSheet;
+  const back=$('#aiBack');if(back)back.onclick=()=>{s.mode='manual';s.aiStatus='idle';s.ai=null;renderSheet();};
+  const stop=$('#aiStop');if(stop)stop.onclick=stopVoice;
+  const add=$('#aiAddAll');if(add)add.onclick=addAiItems;
+  $('#sheet').querySelectorAll('.ai-items .del').forEach(b=>b.onclick=()=>{s.ai.items.splice(+b.dataset.i,1);if(!s.ai.items.length){s.mode='manual';s.aiStatus='idle';}renderSheet();});
+}
+function addAiItems(){
+  ensureForm();const meal=state.sheet.meal,n=state.sheet.ai.items.length;
+  state.sheet.ai.items.forEach(it=>state.form.foods.push({n:it.name,u:it.unit,a:it.amount,carb:it.carb,prot:it.protein,meal}));
+  saveToday();closeSheet();renderDiet();toast(`已加 ${n} 样到「${meal}」`);
 }
 
 /* ============ 计划 ============ */

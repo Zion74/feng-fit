@@ -47,3 +47,27 @@
 ## 四、食物营养率来源
 
 `index.html` 里 `FOODS` 数组源自 B 站「好人松松」套表 sheet19《日常食物营养率》（碳水/蛋白每 100g 或每份克数；脂肪按松松体系不单独计）。要加食物：在 `FOODS` 里照格式加一行。
+
+---
+
+## 五、AI 语音 / 拍照记录（需部署 Edge Function）
+
+冯总在「饮食」Tab 加食物时，可**说一句**或**拍张外卖照**，AI（StepFun）按松松营养率自动算出碳水/蛋白，确认后加入对应餐。不部署也不影响手动记录。
+
+> ⚠️ StepFun 是付费 LLM key，**绝不能放进前端**，所以用 Supabase Edge Function 当代理藏 key。
+
+**部署步骤（控制台，约 5 分钟）：**
+
+1. **建函数**：Supabase 控制台 → 左侧 **Edge Functions** → **Deploy a new function / Create function** → 名字填 **`diet-ai`** → 把 [`supabase/functions/diet-ai/index.ts`](supabase/functions/diet-ai/index.ts) 全部内容粘进编辑器。
+2. **关掉 JWT 校验**：创建时把 **Verify JWT** 开关**关闭**（前端用 publishable key 调用，非 JWT）。若已创建，在函数 Settings 里关。
+3. **设密钥**：Edge Functions → **Secrets**（或 Project Settings → Edge Functions）→ 新增
+   `STEPFUN_API_KEY` = 你的 StepFun key。
+4. **Deploy**。完成后前端会自动调用 `<SUPABASE_URL>/functions/v1/diet-ai`，无需改前端。
+
+**用 CLI 部署（可选）：**
+```bash
+supabase functions deploy diet-ai --no-verify-jwt --project-ref rkqdpgeqieltxuyzjxdr
+supabase secrets set STEPFUN_API_KEY=你的key --project-ref rkqdpgeqieltxuyzjxdr
+```
+
+**模型**：识图+分析 `step-3.7-flash`，语音转文字 `stepaudio-2.5-asr`（都在 index.ts 顶部可改）。
