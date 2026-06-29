@@ -140,6 +140,25 @@ textarea.note::placeholder{color:var(--ink-3);}
 .addfood{width:100%;margin-top:var(--s3);padding:13px;border-radius:var(--r-md);background:var(--pine-soft);color:var(--pine-d);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;}
 .addfood svg{width:17px;height:17px;}
 .diet-empty{text-align:center;padding:var(--s4) 0 var(--s2);color:var(--ink-3);font-size:13px;}
+.diet-link{display:flex;align-items:center;justify-content:space-between;margin-top:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s4) var(--s5);box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .12s;}
+.diet-link:active{transform:scale(.99);}
+.diet-link .l .k{font-size:12px;color:var(--ink-2);font-weight:600;}
+.diet-link .l .v{font-family:var(--font-num);font-weight:800;font-size:19px;margin-top:3px;}
+.diet-link .l .v .c{color:var(--pine-d);}.diet-link .l .v .p{color:var(--blue);}
+.diet-link .l .v small{font-family:var(--font-cjk);font-size:11px;color:var(--ink-3);font-weight:600;}
+.diet-link .arrow{display:flex;align-items:center;gap:3px;font-size:13px;font-weight:700;color:var(--pine-d);white-space:nowrap;}
+.diet-link .arrow svg{width:15px;height:15px;}
+.meal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s4);margin-top:var(--s3);box-shadow:var(--shadow-sm);}
+.meal .mh{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s3);}
+.meal .mh .nm{font-size:15.5px;font-weight:700;}
+.meal .tgt{font-family:var(--font-num);font-size:12.5px;font-weight:700;color:var(--ink-2);text-align:right;line-height:1.45;}
+.meal .tgt b.c{color:var(--pine-d);}.meal .tgt b.p{color:var(--blue);}
+.meal .tgt .cur{font-size:10.5px;color:var(--ink-3);font-weight:600;margin-top:1px;}
+.meal .hint{font-size:12px;color:oklch(0.42 0.08 60);margin-top:8px;background:var(--clay-soft);padding:8px 11px;border-radius:var(--r-sm);}
+.meal .mfoods{margin-top:var(--s1);}
+.meal .addf{width:100%;margin-top:var(--s2);padding:10px;border-radius:var(--r-sm);background:var(--pine-soft);color:var(--pine-d);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;}
+.meal .addf svg{width:15px;height:15px;}
+.diet-foot{font-size:12px;color:var(--ink-3);text-align:center;margin-top:var(--s4);padding:0 var(--s4);line-height:1.6;}
 
 /* —— plan —— */
 .switch{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--surface-2);padding:5px;border-radius:var(--r-md);margin-top:var(--s4);position:sticky;top:calc(54px + env(safe-area-inset-top));z-index:10;}
@@ -311,6 +330,7 @@ nav.tabbar button span{font-size:10.5px;font-weight:600;}
   </header>
   <main>
     <section class="view on" id="view-today"></section>
+    <section class="view" id="view-diet"></section>
     <section class="view" id="view-plan"></section>
     <section class="view" id="view-progress"></section>
     <section class="view" id="view-design"></section>
@@ -416,7 +436,7 @@ function seedDemo(){
   const rows=[],today=new Date(),P=state.cfg.profile;
   for(let i=15;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);
     const ds=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,w=+(P.start_weight-(15-i)*0.12-Math.sin(i)*0.18).toFixed(1),pl=planForDate(ds).type;
-    const foods= i<3?[{n:'米饭(外卖一般)',u:'g',a:200,carb:60,prot:0},{n:'熟瘦肉(鸡牛鱼虾)',u:'g',a:180,carb:0,prot:45},{n:'鸡蛋',u:'个',a:2,carb:0,prot:12}]:[];
+    const foods= i<3?[{n:'米饭(外卖一般)',u:'g',a:200,carb:60,prot:0,meal:'午饭'},{n:'熟瘦肉(鸡牛鱼虾)',u:'g',a:180,carb:0,prot:45,meal:'午饭'},{n:'鸡蛋',u:'个',a:2,carb:0,prot:12,meal:'早饭'}]:[];
     const cT=foods.reduce((s,f)=>s+f.carb,0),pT=foods.reduce((s,f)=>s+f.prot,0);
     rows.push({log_date:ds,weight:w,plan:pl,training:pl==='休息'?'休息':(i%5===0?'部分':'完成'),diet:i%4===0?'良':'优',steps:8200+((i*137)%2600),sleep:6.5+((i%3)*0.5),water:2+((i%3)*0.5),back:i===3?'轻微':'无',note:'',foods,carbs:cT,protein:pT});
   }
@@ -433,28 +453,37 @@ const I={
  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>',
  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>',
  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+ arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
 };
 const NAV={
- today:['今日打卡','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'],
- plan:['训练计划','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h11a1 1 0 0 1 1 1v16l-3.5-2-3 2-3-2L5 20V4a1 1 0 0 1 1.5-1Z"/><path d="M9 7h6M9 11h6M9 15h3"/></svg>'],
- progress:['进度监看','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M19 7l-5 6-3-3-4 5"/></svg>'],
- design:['方案设计','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'],
+ today:['今日','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'],
+ diet:['饮食','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v7a2 2 0 0 0 2 2 2 2 0 0 0 2-2V3M6 12v9M16 3c-1.6 1-2.5 3-2.5 5.5S14 12 16 12.5V21"/></svg>'],
+ plan:['计划','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h11a1 1 0 0 1 1 1v16l-3.5-2-3 2-3-2L5 20V4a1 1 0 0 1 1.5-1Z"/><path d="M9 7h6M9 11h6M9 15h3"/></svg>'],
+ progress:['进度','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M19 7l-5 6-3-3-4 5"/></svg>'],
+ design:['设计','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'],
 };
 function renderNav(){
-  const tabs=state.role==='coach'?['progress','plan','design']:['today','plan','progress'];
+  const tabs=state.role==='coach'?['progress','plan','design']:['today','diet','plan','progress'];
   const bar=$('#tabbar');bar.style.gridTemplateColumns=`repeat(${tabs.length},1fr)`;
   bar.innerHTML=tabs.map(t=>`<button data-tab="${t}" class="${state.view===t?'on':''}">${NAV[t][1]}<span>${NAV[t][0]}</span></button>`).join('');
   bar.querySelectorAll('button').forEach(b=>b.onclick=()=>switchView(b.dataset.tab));
 }
+
+/* —— 每餐配额拆分（按松松晚饭后练餐序，比例 × 当日配额自动计算） —— */
+const MEAL_SPLIT={
+  train:[{name:'早饭',c:0.20,p:0.18,hint:'鸡蛋2-3个 + 牛奶1盒 + 燕麦/全麦面包'},{name:'午饭',c:0.30,p:0.32,hint:null},{name:'晚饭·练前',c:0.27,p:0.18,hint:'练前1.5h吃完，七分饱别吃撑'},{name:'练后餐',c:0.23,p:0.32,hint:'练后30分钟内：蛋白粉1勺+水果，或即食鸡胸'}],
+  rest:[{name:'早饭',c:0.22,p:0.22,hint:'鸡蛋2-3个 + 牛奶1盒 + 燕麦'},{name:'午饭',c:0.40,p:0.40,hint:null},{name:'晚饭',c:0.38,p:0.38,hint:null}],
+};
+function dayMeals(isRest,q){return MEAL_SPLIT[isRest?'rest':'train'].map(m=>({name:m.name,hint:m.hint,c:Math.round(q.carb*m.c),p:Math.round(q.protein*m.p)}));}
+function takeoutHint(c,p){const rice=Math.round(c/0.30/10)*10,meat=Math.round(p/0.25/10)*10,parts=[];if(rice>0)parts.push(`米饭≈${rice}g`);if(meat>0)parts.push(`瘦肉≈${meat}g`);return (parts.join(' + ')||'按配额自由组合')+'（或等量替换 + 蔬菜）';}
+function ensureForm(){const ds=todayStr();if(state.form.log_date!==ds){const rec=recordFor(ds),pl=planForDate(ds);state.form=rec?{...rec,foods:rec.foods?rec.foods.map(x=>({...x})):[]}:{log_date:ds,weight:lastWeight(),plan:pl.type,training:pl.type==='休息'?'休息':'完成',diet:'优',steps:'',sleep:'',water:'',back:'无',note:'',foods:[]};}if(!state.form.foods)state.form.foods=[];return state.form;}
 
 /* ============ 今日（用户） ============ */
 function recordFor(ds){return state.rows.find(r=>r.log_date===ds);}
 function lastWeight(){const r=[...state.rows].reverse().find(r=>r.weight);return r?r.weight:state.cfg.profile.start_weight;}
 function renderToday(){
   const ds=todayStr(),pl=planForDate(ds),rec=recordFor(ds),d=parseD(ds);
-  const f=state.form.log_date===ds?state.form:(rec?{...rec}:{log_date:ds,weight:lastWeight(),plan:pl.type,training:pl.type==='休息'?'休息':'完成',diet:'优',steps:'',sleep:'',water:'',back:'无',note:'',foods:[]});
-  if(!f.foods)f.foods=[];
-  state.form=f;
+  const f=ensureForm();
   const isRest=pl.type==='休息',planLabel=isRest?'休息日':(pl.type+' · '+(pl.type==='A'?'上肢日':'下肢日'));
   const q=isRest?state.cfg.quota.rest:state.cfg.quota.train;
   const cT=f.foods.reduce((s,x)=>s+(x.carb||0),0),pT=f.foods.reduce((s,x)=>s+(x.prot||0),0);
@@ -466,10 +495,9 @@ function renderToday(){
         <div class="wval"><input id="wInput" class="num" type="number" inputmode="decimal" step="0.1" value="${f.weight||''}" placeholder="--"><span class="u">kg</span></div>
         <button id="wPlus">${I.plus}</button></div><div class="wdelta" id="wDelta"></div></div>
 
-    <div class="diet-card"><div class="hd"><h3>今日饮食</h3><div class="day">${isRest?'休息日配额':'力训日配额'}</div></div>
-      ${mbar('carb','碳水',cT,q.carb)}${mbar('prot','蛋白',pT,q.protein)}
-      <div class="foodlist" id="foodList">${foodListHTML(f.foods)}</div>
-      <button class="addfood" id="addFood">${I.plus} 记录食物</button></div>
+    <div class="diet-link" id="dietLink"><div class="l"><div class="k">今日饮食 · ${isRest?'休息日':'力训日'}</div>
+      <div class="v"><span class="c">${cT.toFixed(0)}</span><small>/${q.carb}碳</small> · <span class="p">${pT.toFixed(0)}</span><small>/${q.protein}蛋</small></div></div>
+      <div class="arrow">记一笔 ${I.arrow}</div></div>
 
     <div class="field"><div class="lbl">训练完成</div>${seg('training',['完成','部分','未练','休息'],f.training,'four good',['','','',''])}</div>
     <div class="field"><div class="lbl">${I.shield} 腰部感受</div>${seg('back',['无','轻微','明显'],f.back,'alert',['','warn','bad'])}</div>
@@ -500,37 +528,50 @@ function bindToday(){
   document.querySelectorAll('#view-today input[type=radio]').forEach(r=>r.onchange=()=>state.form[r.name]=r.value);
   ['steps','sleep','water'].forEach(k=>{const m=$('#m_'+k);if(m)m.oninput=()=>state.form[k]=m.value;});
   const nt=$('#noteInput');if(nt)nt.oninput=()=>state.form.note=nt.value;
-  $('#addFood').onclick=openFoodSheet;
-  $('#foodList').querySelectorAll('.del').forEach(b=>b.onclick=()=>removeFood(+b.dataset.i));
+  $('#dietLink').onclick=()=>switchView('diet');
   $('#submitBtn').onclick=submit;
 }
-async function persistFoods(){
+async function saveToday(){
   const f=state.form,cT=f.foods.reduce((s,x)=>s+(x.carb||0),0),pT=f.foods.reduce((s,x)=>s+(x.prot||0),0);
-  if(!f.weight){ // 只更新内存渲染，等保存时落库
-    refreshDiet(cT,pT);return;
-  }
-  await upsertCheckin({log_date:f.log_date,foods:f.foods,carbs:+cT.toFixed(1),protein:+pT.toFixed(1)});
-  refreshDiet(cT,pT);
+  f.carbs=+cT.toFixed(1);f.protein=+pT.toFixed(1);
+  await upsertCheckin({log_date:f.log_date,weight:f.weight?+f.weight:null,plan:f.plan,training:f.training,diet:f.diet,steps:f.steps?+f.steps:null,sleep:f.sleep?+f.sleep:null,water:f.water?+f.water:null,back:f.back,note:f.note||'',foods:f.foods,carbs:f.carbs,protein:f.protein});
 }
-function refreshDiet(cT,pT){
-  const isRest=planForDate(todayStr()).type==='休息',q=isRest?state.cfg.quota.rest:state.cfg.quota.train;
-  const fl=$('#foodList');if(fl){fl.innerHTML=foodListHTML(state.form.foods);fl.querySelectorAll('.del').forEach(b=>b.onclick=()=>removeFood(+b.dataset.i));}
-  const dc=$('.diet-card');if(dc){dc.querySelector('.mbar.carb').outerHTML=mbar('carb','碳水',cT,q.carb);dc.querySelector('.mbar.prot').outerHTML=mbar('prot','蛋白',pT,q.protein);}
-}
-function removeFood(i){state.form.foods.splice(i,1);persistFoods();}
-function addFood(item){state.form.foods.push(item);persistFoods();closeSheet();toast(`已加 ${item.n}`);}
+function removeFood(i){state.form.foods.splice(i,1);saveToday();renderDiet();}
+function addFood(item){ensureForm();state.form.foods.push(item);saveToday();closeSheet();toast(`已加 ${item.n}`);renderDiet();}
 async function submit(){
-  const f=state.form;if(!f.weight){toast('先记一下今天的体重 🙂');$('#wInput').focus();return;}
-  const cT=(f.foods||[]).reduce((s,x)=>s+(x.carb||0),0),pT=(f.foods||[]).reduce((s,x)=>s+(x.prot||0),0);
-  const rec={log_date:f.log_date,weight:+f.weight,plan:f.plan,training:f.training,diet:f.diet,steps:f.steps?+f.steps:null,sleep:f.sleep?+f.sleep:null,water:f.water?+f.water:null,back:f.back,note:f.note||'',foods:f.foods||[],carbs:+cT.toFixed(1),protein:+pT.toFixed(1)};
+  ensureForm();const f=state.form;if(!f.weight){toast('先记一下今天的体重 🙂');$('#wInput').focus();return;}
   const btn=$('#submitBtn');btn.style.opacity='.6';btn.style.pointerEvents='none';
-  await upsertCheckin(rec);btn.style.opacity='';btn.style.pointerEvents='';
-  toast(rec.back==='明显'?'已保存 · 腰部不适已记录，注意降量':'打卡成功 · 坚持就是胜利');
-  state.form={};renderToday();
+  await saveToday();btn.style.opacity='';btn.style.pointerEvents='';
+  toast(f.back==='明显'?'已保存 · 腰部不适已记录，注意降量':'打卡成功 · 坚持就是胜利');
+  renderToday();
+}
+/* ============ 饮食（用户·独立Tab·分餐配额） ============ */
+function foodItemHTML(x,i){return `<div class="fitem"><div class="fn">${x.n} <small>${x.a}${x.u==='g'?'g':'×'+x.u.replace(/\(.*\)/,'')}</small></div><div class="fm">${x.carb?`<b>${x.carb}</b>碳 `:''}${x.prot?`<span class="p">${x.prot}</span>蛋`:''}</div><button class="del" data-i="${i}">${I.x}</button></div>`;}
+function mealCard(m,foods){
+  const items=foods.map((x,gi)=>({x,gi})).filter(o=>(o.x.meal||'午饭')===m.name);
+  const c=items.reduce((s,o)=>s+(o.x.carb||0),0),p=items.reduce((s,o)=>s+(o.x.prot||0),0);
+  const hint=m.hint||takeoutHint(m.c,m.p);
+  return `<div class="meal"><div class="mh"><div class="nm">${m.name}</div><div class="tgt">目标 <b class="c">~${m.c}</b>碳 · <b class="p">~${m.p}</b>蛋<div class="cur">已记 ${c.toFixed(0)}碳 / ${p.toFixed(0)}蛋</div></div></div>
+    <div class="hint">🍱 ${hint}</div>
+    <div class="mfoods">${items.length?items.map(o=>foodItemHTML(o.x,o.gi)).join(''):'<div class="diet-empty">还没记 · 点下面加食物</div>'}</div>
+    <button class="addf" data-addmeal="${m.name}">${I.plus} 加食物</button></div>`;
+}
+function renderDiet(){
+  const f=ensureForm(),ds=todayStr(),pl=planForDate(ds),d=parseD(ds),isRest=pl.type==='休息';
+  const q=isRest?state.cfg.quota.rest:state.cfg.quota.train;
+  const cT=f.foods.reduce((s,x)=>s+(x.carb||0),0),pT=f.foods.reduce((s,x)=>s+(x.prot||0),0);
+  const meals=dayMeals(isRest,q);
+  $('#view-diet').innerHTML=`<div class="eyebrow">${WK[d.getDay()]} · ${isRest?'休息日':'力训日'}</div><h2 class="title">今日饮食</h2>
+    <p class="sub">照着每餐配额点外卖 · 选食物自动算碳水蛋白</p>
+    <div class="diet-card"><div class="hd"><h3>今日合计</h3><div class="day">${isRest?'休息日配额':'力训日配额'}</div></div>${mbar('carb','碳水',cT,q.carb)}${mbar('prot','蛋白',pT,q.protein)}</div>
+    ${meals.map(m=>mealCard(m,f.foods)).join('')}
+    <div class="diet-foot">脂肪不用单独记：每天约 ${q.fat}g，吃带油瘦肉菜 + 早饭蛋奶即够 · 蔬菜不限量、先吃菜后吃碳水</div>`;
+  $('#view-diet').querySelectorAll('[data-addmeal]').forEach(b=>b.onclick=()=>openFoodSheet(b.dataset.addmeal));
+  $('#view-diet').querySelectorAll('.fitem .del').forEach(b=>b.onclick=()=>removeFood(+b.dataset.i));
 }
 
 /* ============ 食物选择 bottom sheet ============ */
-function openFoodSheet(){state.sheet={cat:'全部',q:'',food:null,amt:0};renderSheet();showSheet();}
+function openFoodSheet(meal){state.sheet={cat:'全部',q:'',food:null,amt:0,meal:meal||'午饭'};renderSheet();showSheet();}
 function showSheet(){$('#overlay').classList.add('show');$('#sheet').classList.add('show');}
 function closeSheet(){$('#overlay').classList.remove('show');$('#sheet').classList.remove('show');state.sheet=null;}
 $('#overlay').onclick=closeSheet;
@@ -540,7 +581,7 @@ function renderSheet(){
   const cats=['全部','主食','水果','蛋白'];
   const list=FOODS.filter(x=>(s.cat==='全部'||x.c===s.cat)&&(!s.q||x.f.includes(s.q)));
   $('#sheet').innerHTML=`<div class="grip"></div>
-    <div class="sh-h"><h3>记录食物</h3><button id="shClose">关闭</button></div>
+    <div class="sh-h"><h3>记录食物${s.meal?' · '+s.meal:''}</h3><button id="shClose">关闭</button></div>
     <div class="searchbar"><input id="shSearch" placeholder="搜食物，如 米饭 / 鸡胸 / 香蕉" value="${s.q}"></div>
     <div class="chips">${cats.map(c=>`<button data-c="${c}" class="${s.cat===c?'on':''}">${c}</button>`).join('')}</div>
     <div class="foodscroll">${list.map((x,i)=>{const idx=FOODS.indexOf(x);const rate=x.cb?`<span class="rate c">${x.u==='g'?x.cb+'%碳':x.cb+'碳/'+x.u.replace(/\(.*\)/,'')}</span>`:'';const prate=x.pr?`<span class="rate p">${x.u==='g'?x.pr+'%蛋':x.pr+'蛋/'+x.u.replace(/\(.*\)/,'')}</span>`:'';
@@ -570,7 +611,7 @@ function renderAmt(){
   $('#aPlus').onclick=()=>{ai.value=(parseFloat(ai.value)||0)+step;upd();};
   ai.oninput=upd;
   $('#sheet').querySelectorAll('.presets button').forEach(b=>b.onclick=()=>{ai.value=b.dataset.p;upd();});
-  $('#aAdd').onclick=()=>{const r=compFood({u:x.u,cb:x.cb,pr:x.pr,a:s.amt});addFood({n:x.f,u:x.u,a:s.amt,carb:r.carb,prot:r.prot});};
+  $('#aAdd').onclick=()=>{const r=compFood({u:x.u,cb:x.cb,pr:x.pr,a:s.amt});addFood({n:x.f,u:x.u,a:s.amt,carb:r.carb,prot:r.prot,meal:s.meal});};
 }
 
 /* ============ 计划 ============ */
@@ -702,12 +743,12 @@ $('#gearBtn').onclick=()=>{
   const pin=prompt('输入教练 PIN 进入设计模式');if(pin===null)return;
   if(pin===CONFIG.COACH_PIN){setRole('coach');toast('已进入 教练模式');}else toast('PIN 不对');
 };
-function renderAll(){renderToday();renderPlan();renderProgress();if(state.role==='coach')renderDesign();}
+function renderAll(){renderToday();renderDiet();renderPlan();renderProgress();if(state.role==='coach')renderDesign();}
 function switchView(v){
   state.view=v;document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));$('#view-'+v).classList.add('on');
   document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.tab===v));
   window.scrollTo({top:0});
-  if(v==='today')renderToday();else if(v==='plan')renderPlan();else if(v==='progress')renderProgress();else renderDesign();
+  if(v==='today')renderToday();else if(v==='diet')renderDiet();else if(v==='plan')renderPlan();else if(v==='progress')renderProgress();else renderDesign();
 }
 
 /* ============ 启动 ============ */
