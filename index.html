@@ -128,6 +128,9 @@ textarea.note::placeholder{color:var(--ink-3);}
 .mbar.carb .track i{background:var(--pine);}
 .mbar.prot .track i{background:var(--blue);}
 .mbar .track i.over{background:var(--clay)!important;}
+.kcal{margin-top:var(--s3);padding-top:var(--s3);border-top:1px dashed var(--line);font-size:13px;color:var(--ink-2);font-weight:600;}
+.kcal b{font-family:var(--font-num);font-size:17px;color:var(--clay-d);}
+.kcal span{font-size:11px;color:var(--ink-3);font-weight:500;}
 .foodlist{margin-top:var(--s2);}
 .fitem{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;border-top:1px solid var(--line);}
 .fitem .fn{flex:1;font-size:14px;font-weight:500;}
@@ -522,6 +525,12 @@ const TIPS=[
  "减太快一定反弹。每两周减 2%、每月减 4%，才是身体能保持住的健康速度。",
  "多喝水（每天 2-3L）。很多时候你以为饿，其实只是渴了。",
  "这是生活方式的小调整，不是一阵子的苦行。能长期做下去的方法，才是对的方法。",
+ "给热量一把尺子：1 碗米饭 ≈ 200 大卡。你一天约 2000 大卡 = 10 碗米饭的能量，但要用有营养的食物吃满。",
+ "一顿火锅/烧烤 ≈ 8-12 碗米饭（1500-2500 大卡），大多来自油和肥肉。偶尔可以，别当日常。",
+ "一杯全糖奶茶 ≈ 2-3 碗米饭，一瓶可乐 ≈ 1 碗。含糖饮料是“喝下去的糖”、没饱腹感，最划不来。",
+ "酒是“空热量”：1 瓶啤酒 ≈ 1 碗米饭，还抑制烧脂肪、越喝越想吃。一场酒局轻松多吃 5-10 碗。",
+ "想多吃点？多动 100 大卡，就能多吃：80g 米饭／80g 瘦肉／1 个水果／1.5 个蛋／大半盒奶／20g 坚果。",
+ "天天最该躲的两样：含糖饮料/奶茶 + 油炸物。其他偶尔吃没事，知道大概几碗米饭、控住频率就行。",
 ];
 function tipCardHTML(){ if(state.tipIdx==null){const d=new Date();state.tipIdx=(d.getFullYear()*372+d.getMonth()*31+d.getDate())%TIPS.length;} return `<div class="tip" id="tipCard"><div class="tip-h">💡 健身小知识</div><div class="tip-b">${TIPS[state.tipIdx]}</div><div class="tip-n">轻点换一条 →</div></div>`; }
 
@@ -620,7 +629,7 @@ function renderDiet(){
   const meals=dayMeals(isRest,q);
   $('#view-diet').innerHTML=`<div class="eyebrow">${WK[d.getDay()]} · ${isRest?'休息日':'力训日'}</div><h2 class="title">今日饮食</h2>
     <p class="sub">照着每餐配额点外卖 · 选食物自动算碳水蛋白</p>
-    <div class="diet-card"><div class="hd"><h3>今日合计</h3><div class="day">${isRest?'休息日配额':'力训日配额'}</div></div>${mbar('carb','碳水',cT,q.carb)}${mbar('prot','蛋白',pT,q.protein)}</div>
+    <div class="diet-card"><div class="hd"><h3>今日合计</h3><div class="day">${isRest?'休息日配额':'力训日配额'}</div></div>${mbar('carb','碳水',cT,q.carb)}${mbar('prot','蛋白',pT,q.protein)}<div class="kcal">今日已记 ≈ <b>${Math.round(cT*4+pT*4)}</b> 大卡 <span>· 全天约 ${q.carb*4+q.protein*4+q.fat*9}（≈${Math.round((q.carb*4+q.protein*4+q.fat*9)/200)} 碗米饭，含脂肪）</span></div></div>
     ${meals.map(m=>mealCard(m,f.foods)).join('')}
     <div class="diet-foot">脂肪不用单独记：每天约 ${q.fat}g，吃带油瘦肉菜 + 早饭蛋奶即够 · 蔬菜不限量、先吃菜后吃碳水</div>`;
   $('#view-diet').querySelectorAll('[data-addmeal]').forEach(b=>b.onclick=()=>openFoodSheet(b.dataset.addmeal));
@@ -754,6 +763,7 @@ function renderPlan(){
     ${accordion('餐序（晚饭后练）',qlist([['①早饭','碳水+鸡蛋牛奶'],['②午饭','碳水+瘦肉+蔬菜，先菜后碳水'],['③晚饭/练前','正常吃但≤7分饱，练前1.5h吃完'],['④练后','蛋白粉+水果 或 即食鸡胸']]),true)}
     ${accordion('外卖实操',qlist([['点','清蒸鱼/白切鸡/卤牛肉 + 米饭单点 + 白灼菜'],['备注','少油·油盐分开·酱另放；重油菜刮油过水'],['避','炸鸡汉堡·麻辣烫·红烧糖醋·盖浇饭·奶茶'],['自备','即食鸡胸·水煮蛋·牛奶·蛋白粉']]))}
     ${accordion('食物营养率（记饮食用）',qlist([['主食碳水','米饭30% · 馒头面包50% · 红薯土豆18% · 燕麦干60%'],['水果碳水','香蕉22% · 苹果13% · 橙11% · 西瓜7%（算进碳水）'],['瘦肉蛋白','熟瘦肉25% · 生肉20% · 瘦肉干40%'],['蛋奶','鸡蛋6g/个 · 牛奶10g/盒 · 蛋白粉23g/勺']]))}
+    ${accordion('🔥 热量雷区 & 大卡概念',qlist([['尺子','1 碗米饭 ≈ 200 大卡；你一天约 2000 大卡 = 10 碗的能量(用有营养的吃满)'],['🍲火锅/烧烤','一顿 1500-2500 大卡 ≈ 8-12 碗米饭，几乎全是油'],['🧋奶茶/可乐','全糖奶茶一杯 ≈ 2-3 碗；可乐一瓶 ≈ 1 碗；喝下去的糖、不顶饱'],['🍺酒','啤酒1瓶≈1碗，白酒2两≈1.5碗；空热量还抑制烧脂肪'],['🍗炸鸡','一份 800-1000 大卡 ≈ 4-5 碗'],['多动100大卡','≈多吃 80g米饭/80g瘦肉/1个水果/1.5个蛋/大半盒奶/20g坚果'],['原则','偶尔可以，知道代价、控频率；天天最该躲：含糖饮料 + 油炸物']]))}
     <div class="warnbox"><h4>${I.warn} 腰椎禁忌 · 务必避开</h4><p>负重弯腰/转腰=椎间盘压力最大，全程脊柱中立、用髋和腿发力。</p>
       <div class="tags"><span>杠铃硬拉(地面)</span><span>早安式</span><span>仰卧起坐</span><span>卷腹</span><span>俄罗斯转体</span><span>悬垂举腿</span></div></div>`;
   $('#view-plan').querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>{state.planTab=b.dataset.pt;renderPlan();});
