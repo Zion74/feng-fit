@@ -159,6 +159,11 @@ textarea.note::placeholder{color:var(--ink-3);}
 .meal .addf{width:100%;margin-top:var(--s2);padding:10px;border-radius:var(--r-sm);background:var(--pine-soft);color:var(--pine-d);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;}
 .meal .addf svg{width:15px;height:15px;}
 .diet-foot{font-size:12px;color:var(--ink-3);text-align:center;margin-top:var(--s4);padding:0 var(--s4);line-height:1.6;}
+.tip{margin-top:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s4);cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s;}
+.tip:active{transform:scale(.99);}
+.tip-h{font-size:11.5px;font-weight:700;color:var(--clay-d);letter-spacing:.03em;}
+.tip-b{font-size:13.5px;color:var(--ink);line-height:1.6;margin-top:6px;}
+.tip-n{font-size:11px;color:var(--ink-3);font-weight:600;margin-top:8px;}
 
 /* —— plan —— */
 .switch{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--surface-2);padding:5px;border-radius:var(--r-md);margin-top:var(--s4);position:sticky;top:calc(54px + env(safe-area-inset-top));z-index:10;}
@@ -382,8 +387,8 @@ const CK='fengfit.checkins.v2', CFGK='fengfit.config.v1', ROLEK='fengfit.role';
 
 /* —— 默认配置（教练可在「设计」页改，真实值存云端，不留在代码里） —— */
 const DEFAULTS={
-  profile:{ name:'冯总', age:30, height:190, start_date:'2026-06-29', start_weight:95, target_weight:83 },
-  quota:{ train:{carb:205,protein:140,fat:60}, rest:{carb:180,protein:140,fat:60} },
+  profile:{ name:'冯总', age:30, height:189, start_date:'2026-06-29', start_weight:102, target_weight:85 },
+  quota:{ train:{carb:205,protein:155,fat:60}, rest:{carb:180,protein:155,fat:60} },
   plan:{
     core:[['90-90 呼吸 / 三腔对位','2×5 次呼吸'],['改良卷腹(麦吉尔)','3×8'],['侧平板支撑','3×20-30秒/侧'],['鸟狗','3×8/侧'],['死虫','3×8/侧'],['帕洛夫抗旋推','3×10/侧'],['农夫行走','3×20米']],
     A:[['器械推胸 / 哑铃卧推','水平推','3-4×8-12'],['胸部支撑哑铃划船','水平拉·腰不受力','3-4×10-12'],['高位下拉','垂直拉·进阶引体','3-4×8-12'],['坐姿哑铃肩推','有靠背','2-3×10-12'],['面拉','改善圆肩','2-3×15']],
@@ -497,6 +502,29 @@ function renderNav(){
   bar.querySelectorAll('button').forEach(b=>b.onclick=()=>switchView(b.dataset.tab));
 }
 
+/* —— 边用边学·健身/饮食小知识（每天一条，可轻点换） —— */
+const TIPS=[
+ "减脂 ≠ 饿肚子。饿出来的多是肌肉和水，脂肪反而更顽固——吃对、吃够，身体才舍得烧脂肪。",
+ "每餐都要有蛋白质（瘦肉/蛋/奶）。它保护你辛苦练来的肌肉，还特别扛饿。",
+ "主食别戒！米饭馒头照吃，只是控制量。完全不吃碳水会没力气、易暴食、坚持不下去。",
+ "体重每天波动 1-2 斤很正常，那是水和食物的重量，不是脂肪。只看一周的平均趋势。",
+ "水果是“糖水”，要算进碳水。一根香蕉≈半碗米饭的糖，不是想吃多少吃多少。",
+ "“瘦肉”=去皮鸡鸭、没肥边的猪牛羊、鱼虾贝。鸡皮、肥牛、排骨、炸鸡不算瘦肉。",
+ "最该躲的不是肉和饭，是“又油又糖”的：炸鸡、蛋糕、奶茶、薯片、含糖饮料。",
+ "外卖技巧：主食单独点能控量；备注“少油、酱另放”；重油菜在盘边刮一刮油再吃。",
+ "睡不够，第二天更饿、更馋甜的，还掉肌肉。减脂期睡够 7 小时，和吃对一样重要。",
+ "训练要“留余力”：练到还能再做 2-3 个就停。不是越累越好，能长期坚持才有用。",
+ "你的腰要被保护：不弯腰搬重物，先练核心稳定，深蹲硬拉都从极轻、动作标准开始。",
+ "减脂是 7 分吃、2 分练、1 分睡的综合工程。光靠饿，掉的是健康。",
+ "蔬菜随便吃，而且先吃菜后吃饭，能压住血糖、更扛饿，对减脂很友好。",
+ "力量训练不是要练成肌肉猛男，是保住肌肉、改善体态、护腰，让你减下来不反弹。",
+ "一顿好午饭长这样：一份米饭 + 一块清蒸鱼/白切鸡 + 一大盘青菜。简单、吃得饱、不长胖。",
+ "减太快一定反弹。每两周减 2%、每月减 4%，才是身体能保持住的健康速度。",
+ "多喝水（每天 2-3L）。很多时候你以为饿，其实只是渴了。",
+ "这是生活方式的小调整，不是一阵子的苦行。能长期做下去的方法，才是对的方法。",
+];
+function tipCardHTML(){ if(state.tipIdx==null){const d=new Date();state.tipIdx=(d.getFullYear()*372+d.getMonth()*31+d.getDate())%TIPS.length;} return `<div class="tip" id="tipCard"><div class="tip-h">💡 健身小知识</div><div class="tip-b">${TIPS[state.tipIdx]}</div><div class="tip-n">轻点换一条 →</div></div>`; }
+
 /* —— 每餐配额拆分（按松松晚饭后练餐序，比例 × 当日配额自动计算） —— */
 const MEAL_SPLIT={
   train:[{name:'早饭',c:0.20,p:0.18,hint:'鸡蛋2-3个 + 牛奶1盒 + 燕麦/全麦面包'},{name:'午饭',c:0.30,p:0.32,hint:null},{name:'晚饭·练前',c:0.27,p:0.18,hint:'练前1.5h吃完，七分饱别吃撑'},{name:'练后餐',c:0.23,p:0.32,hint:'练后30分钟内：蛋白粉1勺+水果，或即食鸡胸'}],
@@ -526,7 +554,7 @@ function renderToday(){
     <div class="diet-link" id="dietLink"><div class="l"><div class="k">今日饮食 · ${isRest?'休息日':'力训日'}</div>
       <div class="v"><span class="c">${cT.toFixed(0)}</span><small>/${q.carb}碳</small> · <span class="p">${pT.toFixed(0)}</span><small>/${q.protein}蛋</small></div></div>
       <div class="arrow">记一笔 ${I.arrow}</div></div>
-
+    ${tipCardHTML()}
     <div class="field"><div class="lbl">训练完成</div>${seg('training',['完成','部分','未练','休息'],f.training,'four good',['','','',''])}</div>
     <div class="field"><div class="lbl">${I.shield} 腰部感受</div>${seg('back',['无','轻微','明显'],f.back,'alert',['','warn','bad'])}</div>
     <div class="mini-row">${mini('steps','步数','',f.steps)}${mini('sleep','睡眠','h',f.sleep)}${mini('water','喝水','L',f.water)}</div>
@@ -557,6 +585,7 @@ function bindToday(){
   ['steps','sleep','water'].forEach(k=>{const m=$('#m_'+k);if(m)m.oninput=()=>state.form[k]=m.value;});
   const nt=$('#noteInput');if(nt)nt.oninput=()=>state.form.note=nt.value;
   $('#dietLink').onclick=()=>switchView('diet');
+  const tc=$('#tipCard');if(tc)tc.onclick=()=>{state.tipIdx=(state.tipIdx+1)%TIPS.length;const b=$('#tipCard .tip-b');if(b)b.textContent=TIPS[state.tipIdx];};
   $('#submitBtn').onclick=submit;
 }
 async function saveToday(){
