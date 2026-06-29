@@ -539,6 +539,10 @@ const TIPS=[
  "酒是“空热量”：1 瓶啤酒 ≈ 1 碗米饭，还抑制烧脂肪、越喝越想吃。一场酒局轻松多吃 5-10 碗。",
  "想多吃点？多动 100 大卡，就能多吃：80g 米饭／80g 瘦肉／1 个水果／1.5 个蛋／大半盒奶／20g 坚果。",
  "天天最该躲的两样：含糖饮料/奶茶 + 油炸物。其他偶尔吃没事，知道大概几碗米饭、控住频率就行。",
+ "前 1-2 周用食物秤称一下主食和肉，给眼睛“校准”、建立饮食基线。之后目测就行，不用一直称——辛苦一两周，后面一直轻松。",
+ "学会用“碳蛋脂”的眼光看饭：米面薯果=碳水，瘦肉蛋奶=蛋白，油/肥肉/坚果=脂肪。能这样拆，你就会自己判断该吃多少。",
+ "体重掉得快≈掉水，不是掉脂肪。少吃碳水(糖原带水)、吃太淡(低钠)都会几天掉两三斤——全是水，一恢复就回来。",
+ "真脂肪掉得慢：一天才分解 30-50g。别被头几天狂掉秤冲昏、也别被某天回涨吓到，只看一周平均趋势。",
 ];
 function tipCardHTML(){ if(state.tipIdx==null){const d=new Date();state.tipIdx=(d.getFullYear()*372+d.getMonth()*31+d.getDate())%TIPS.length;} return `<div class="tip" id="tipCard"><div class="tip-h">💡 健身小知识</div><div class="tip-b">${TIPS[state.tipIdx]}</div><div class="tip-n">轻点换一条 →</div></div>`; }
 
@@ -807,7 +811,8 @@ function renderProgress(){
       <div class="stat"><div class="k">2周达标 (-2%)</div>${badge}</div>
       <div class="stat"><div class="k">本周训练</div><div class="v num">${trainings}<small> 次</small></div></div></div>
     <div class="section-h"><h3>打卡记录</h3><div class="ln"></div><div class="meta">${withW.length} 天</div></div>
-    <div class="hist">${[...state.rows].reverse().slice(0,30).map(histRow).join('')}</div>`;
+    <div class="hist">${[...state.rows].reverse().slice(0,30).map(histRow).join('')}</div>
+    <div class="diet-foot">📉 体重掉得快 ≈ 掉水、不是掉脂肪（低碳/低钠都会快速掉水）。真脂肪一周才一两斤——<b>只看周趋势</b>，别被每天波动带节奏。</div>`;
 }
 function histRow(r){
   const d=parseD(r.log_date),tg=[];
