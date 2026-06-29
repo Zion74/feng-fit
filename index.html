@@ -202,6 +202,18 @@ textarea.note::placeholder{color:var(--ink-3);}
 .ex .tg{font-family:var(--font-num);font-size:12.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);padding:3px 9px;border-radius:var(--r-full);white-space:nowrap;}
 .core-note{background:var(--clay-soft);border-radius:var(--r-md);padding:var(--s3) var(--s4);font-size:12.5px;color:oklch(0.42 0.08 60);margin-bottom:var(--s2);display:flex;gap:9px;align-items:flex-start;}
 .core-note svg{width:17px;height:17px;flex-shrink:0;margin-top:2px;}
+.wc-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:var(--s4);}
+.wc-btn{padding:13px;border-radius:var(--r-md);font-size:14.5px;font-weight:700;transition:filter .15s;}
+.wc-btn:active{filter:brightness(.96);}
+.wc-btn.warm{background:var(--clay-soft);color:var(--clay-d);}
+.wc-btn.cool{background:var(--pine-soft);color:var(--pine-d);}
+.posture-note{margin-top:var(--s3);background:var(--blue-soft);color:var(--blue);font-size:12.5px;line-height:1.55;padding:10px 13px;border-radius:var(--r-md);}
+.info-body{padding:var(--s4) var(--s5) calc(var(--s6) + env(safe-area-inset-bottom));overflow-y:auto;font-size:14px;line-height:1.7;color:var(--ink-2);}
+.info-body p{margin-bottom:var(--s2);}
+.info-body h4{font-size:13.5px;color:var(--pine-d);font-weight:700;margin:var(--s4) 0 var(--s2);}
+.info-body ul{margin:0 0 var(--s2) 1.1em;}
+.info-body li{margin-bottom:5px;}
+.info-body .hl{color:var(--clay-d);font-weight:600;}
 .macro{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);margin:var(--s2) 0;}
 .macro .m{background:var(--pine-soft);border-radius:var(--r-sm);padding:var(--s3) var(--s2);text-align:center;}
 .macro .m.rest{background:var(--surface-2);}
@@ -416,7 +428,7 @@ const DEFAULTS={
   quota:{ train:{carb:245,protein:133,fat:60}, rest:{carb:214,protein:133,fat:60} },
   plan:{
     core:[['90-90 呼吸 / 三腔对位','2×5 次呼吸'],['死虫','2×8/侧'],['鸟狗','2×8/侧']],
-    A:[['跪姿俯卧撑','推 · 恢复功能(目标)','3 × 力竭前留2-3'],['辅助引体向上(弹力带)','垂直拉 · 恢复功能(目标)','3 × 6-10'],['坐姿哑铃肩推','肩 · 垂直推激活','2-3 × 10-12'],['胸部支撑哑铃划船','水平拉 · 腰不受力','2-3 × 10-12'],['面拉','肩后 · 改善圆肩','2 × 15']],
+    A:[['跪姿俯卧撑','推 · 恢复功能(目标)','3 × 力竭前留2-3'],['辅助引体向上(弹力带)','垂直拉 · 恢复功能(目标)','3 × 6-10'],['坐姿哑铃肩推','肩 · 垂直推激活','2-3 × 10-12'],['胸部支撑哑铃划船','水平拉 · 腰不受力','2-3 × 10-12'],['面拉','肩后 · 改善圆肩','2 × 15'],['俯身YTW / 靠墙天使','驼背专项 · 强化中下背','2 × 10-12']],
     B:[['高脚杯深蹲','蹲 · 主项 · 上身直立','3-4 × 8-12'],['罗马尼亚硬拉 RDL','髋铰链 · 主项 · 极轻中立脊柱','3-4 × 10-12'],['哥萨克深蹲 / 侧向弓步','侧向移动 · 内收肌','2 × 8/侧'],['弹力带髋外展 / 蚌式','外展肌 · 臀中肌激活','2 × 12/侧'],['臀桥','髋 · 臀激活','2-3 × 12']],
   },
 };
@@ -560,6 +572,7 @@ const TIPS=[
  "碳=能量(撑训练、护肌肉)，蛋=修肌肉最扛饿，脂=合成激素吸收维生素。三个各管一摊，谁缺了身体都出问题。",
  "光看热量不够、比例更重要：同样2000大卡，蛋白不够会掉肌肉、碳水不够会垮、脂肪不够激素乱。所以盯的是碳蛋脂三个配额。",
  "应吃热量 = 平衡热量 ×0.8(留20%缺口) ×0.8(对冲不自觉多吃) = 平衡×0.64。算出来看着低，实际你吃进去的比这多。",
+ "改驼背：多练背(面拉/划船/YTW)、拉开胸、活动胸椎；练前靠墙天使、练后拉胸大肌；日常挺胸收下巴、手机举高别低头。",
 ];
 function tipCardHTML(){ if(state.tipIdx==null){const d=new Date();state.tipIdx=(d.getFullYear()*372+d.getMonth()*31+d.getDate())%TIPS.length;} return `<div class="tip" id="tipCard"><div class="tip-h">💡 健身小知识</div><div class="tip-b">${TIPS[state.tipIdx]}</div><div class="tip-n">轻点换一条 →</div></div>`; }
 
@@ -790,6 +803,17 @@ function addAiItems(){
 }
 
 /* ============ 计划 ============ */
+function openInfo(title,html){$('#sheet').innerHTML=`<div class="grip"></div><div class="sh-h"><h3>${title}</h3><button id="shClose">关闭</button></div><div class="info-body">${html}</div>`;$('#shClose').onclick=closeSheet;showSheet();}
+const WARMUP=`<p>训练前花 6-8 分钟：升温 → 活动关节 → 激活，唤醒身体、保护腰和肩。</p>
+<h4>① 升温 3-5 分钟</h4><ul><li>快走 / 原地高抬腿 / 椭圆机，到微微出汗、心跳加快</li></ul>
+<h4>② 关节活动</h4><ul><li>肩绕环 前后各 10</li><li><span class="hl">猫驼式 / 胸椎旋转 ×8（驼背重点：打开胸椎）</span></li><li>髋绕环 10/侧、踝泵 ×15</li></ul>
+<h4>③ 体态专项（驼背）</h4><ul><li><span class="hl">靠墙天使 W→Y ×10</span>：后脑、上背、手臂贴墙上下滑，找夹背感</li><li>泡沫轴胸椎伸展 ×8（上背压轴、向后展开）</li></ul>
+<h4>④ 激活（接当天热身激活）</h4><ul><li>90-90 呼吸 ×5、臀桥 ×12、弹力带肩外旋 ×12</li></ul>
+<p class="hl">→ 然后开始当天 A / B 训练</p>`;
+const COOLDOWN=`<p>训练后花 5-8 分钟拉伸，每个动作静拉约 30 秒，拉到"轻微紧"即可、别痛，配合深呼吸。</p>
+<h4>体态专项（驼背重点 · 每次都做）</h4><ul><li><span class="hl">胸大肌/胸小肌拉伸</span>：门框或墙角，前臂贴框、身体前倾，每侧 30s</li><li>泡沫轴放松上背 / 胸椎</li><li>上斜方 / 颈侧拉伸：头慢慢侧倒，每侧 20s</li></ul>
+<h4>下肢（久坐必拉）</h4><ul><li>髋屈肌拉伸（弓步后腿下沉）每侧 30s</li><li>股四头、腘绳、臀（鸽子式）各 30s</li></ul>
+<h4>怎么选</h4><ul><li>上肢日：多拉 胸 / 肩 / 上背</li><li>下肢日：多拉 髋 / 腿</li></ul>`;
 function renderPlan(){
   const P=state.cfg.plan,Q=state.cfg.quota;
   const tdy=planForDate(todayStr()).type;
@@ -798,6 +822,8 @@ function renderPlan(){
   $('#view-plan').innerHTML=`
     <div class="eyebrow">健身房 · 腰椎安全</div><h2 class="title">训练计划</h2>
     <p class="sub">第 1-2 周 · 激活 + 建立身体感知（大肌群 / 复合动作为主）· 动作标准 &gt; 重量，腰一代偿就降重</p>
+    <div class="wc-btns"><button class="wc-btn warm" id="btnWarm">🔥 训练前热身</button><button class="wc-btn cool" id="btnCool">🧘 训练后拉伸</button></div>
+    <div class="posture-note">🔧 <b>体态重点 · 驼背</b>：多练背(面拉/划船/YTW) + 拉开胸 + 活动胸椎；日常挺胸收下巴、少低头看手机。</div>
     <div class="switch"><button data-pt="today" class="${state.planTab==='today'?'on':''}">今日</button><button data-pt="A" class="${state.planTab==='A'?'on':''}">A 上肢</button><button data-pt="B" class="${state.planTab==='B'?'on':''}">B 下肢</button></div>
     <div class="core-note">${I.spark}<div><b>热身激活</b> · 每次训练前做 2-3 个，唤醒身体、护腰，不用多</div></div>
     ${P.core.map((c,i)=>`<div class="ex"><div class="n">${i+1}</div><div class="nm">${c[0]}</div><div class="tg">${c[1]}</div></div>`).join('')}
@@ -813,6 +839,8 @@ function renderPlan(){
     <div class="warnbox"><h4>${I.warn} 腰椎禁忌 · 务必避开</h4><p>负重弯腰/转腰=椎间盘压力最大，全程脊柱中立、用髋和腿发力。</p>
       <div class="tags"><span>杠铃硬拉(地面)</span><span>早安式</span><span>仰卧起坐</span><span>卷腹</span><span>俄罗斯转体</span><span>悬垂举腿</span></div></div>`;
   $('#view-plan').querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>{state.planTab=b.dataset.pt;renderPlan();});
+  $('#btnWarm').onclick=()=>openInfo('🔥 训练前热身',WARMUP);
+  $('#btnCool').onclick=()=>openInfo('🧘 训练后拉伸 / 放松',COOLDOWN);
 }
 function qrow(k,v){return `<div class="qrow"><div class="k">${k}</div><div class="v">${v}</div></div>`;}
 function qlist(a){return '<div class="qlist">'+a.map(x=>qrow(x[0],x[1])).join('')+'</div>';}
