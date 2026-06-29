@@ -84,6 +84,16 @@ h2.title{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.15;m
 .weigh-collapsed summary{list-style:none;padding:var(--s4);cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-2);}
 .weigh-collapsed summary::-webkit-details-marker{display:none;}
 .weigh-collapsed .wbody{padding:0 var(--s4) var(--s4);}
+.weigh-row{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s2);}
+.wstep{width:46px;height:50px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line-2);display:grid;place-items:center;color:var(--pine-d);flex-shrink:0;box-shadow:var(--shadow-sm);transition:transform .12s,background .15s;}
+.wstep:active{transform:scale(.93);background:var(--pine-soft);}
+.wstep svg{width:20px;height:20px;}
+.weigh-row .wval{flex:1;display:flex;align-items:baseline;justify-content:center;gap:3px;min-width:0;}
+.weigh-row .wval input{width:100%;min-width:0;border:none;background:none;text-align:center;font-family:var(--font-num);font-weight:800;font-size:38px;letter-spacing:-.02em;color:var(--ink);padding:0;}
+.weigh-row .wval input::-webkit-outer-spin-button,.weigh-row .wval input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.weigh-row .wval .u{font-size:13px;font-weight:700;color:var(--ink-3);font-family:var(--font-num);}
+.weighbtn{flex-shrink:0;background:var(--clay);color:#fff;font-size:14px;font-weight:700;padding:0 15px;height:50px;border-radius:var(--r-md);box-shadow:0 4px 12px oklch(0.66 0.135 52 /.25);transition:filter .15s;}
+.weighbtn:active{filter:brightness(.96);}
 .stepper{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-top:var(--s2);}
 .stepper button{width:54px;height:54px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line-2);display:grid;place-items:center;color:var(--pine-d);transition:transform .12s,background .15s;box-shadow:var(--shadow-sm);}
 .stepper button:active{transform:scale(.92);background:var(--pine-soft);}
@@ -568,10 +578,10 @@ function lastWeight(){const r=[...state.rows].reverse().find(r=>r.weight);return
 function lastWeightRec(){return [...state.rows].reverse().find(r=>r.weight)||null;}
 function weighCardHTML(f){
   const lw=lastWeightRec(), days=lw?Math.round((parseD(todayStr())-parseD(lw.log_date))/86400000):null, due=!lw||days>=7;
-  const stepper=`<div class="stepper"><button id="wMinus">${I.minus}</button>
+  const stepper=`<div class="weigh-row"><button class="wstep" id="wMinus">${I.minus}</button>
       <div class="wval"><input id="wInput" class="num" type="number" inputmode="decimal" step="0.1" value="${f.weight||''}" placeholder="${lw?lw.weight:'--'}"><span class="u">kg</span></div>
-      <button id="wPlus">${I.plus}</button></div><div class="wdelta" id="wDelta"></div>
-      <button class="submit" id="weighSave">${I.check}<span>记录体重</span></button>`;
+      <button class="wstep" id="wPlus">${I.plus}</button>
+      <button class="weighbtn" id="weighSave">记录</button></div><div class="wdelta" id="wDelta"></div>`;
   if(due) return `<div class="weight-card"><div class="lbl">${I.spark} 本周称重 · 晨起空腹（每周一次就好，别天天称）</div>${stepper}</div>`;
   return `<details class="weigh-collapsed"><summary>⚖️ 上次 ${lw.weight}kg · ${days} 天前 · 本周不用再称，想记可点开</summary><div class="wbody">${stepper}</div></details>`;
 }
@@ -586,6 +596,8 @@ function renderToday(){
     <div class="today-head"><div><div class="eyebrow">${WK[d.getDay()]} · ${d.getMonth()+1}月${d.getDate()}日</div><h2 class="title">今天，记一笔</h2></div>
       <div class="planpill ${isRest?'rest':''}"><span class="g">${isRest?'休':pl.type}</span>${planLabel}</div></div>
     ${weighCardHTML(f)}
+    <div class="mini-row">${mini('steps','步数','',f.steps)}${mini('sleep','睡眠','h',f.sleep)}${mini('water','喝水','L',f.water)}</div>
+    <textarea class="note" id="noteInput" placeholder="备注：今天状态、外卖吃了啥、训练加重…">${f.note||''}</textarea>
 
     <div class="diet-link" id="dietLink"><div class="l"><div class="k">今日饮食 · ${isRest?'休息日':'力训日'}</div>
       <div class="v"><span class="c">${cT.toFixed(0)}</span><small>/${q.carb}碳</small> · <span class="p">${pT.toFixed(0)}</span><small>/${q.protein}蛋</small></div></div>
@@ -593,8 +605,6 @@ function renderToday(){
     ${tipCardHTML()}
     <div class="field"><div class="lbl">训练完成</div>${seg('training',['完成','部分','未练','休息'],f.training,'four good',['','','',''])}</div>
     <div class="field"><div class="lbl">${I.shield} 腰部感受</div>${seg('back',['无','轻微','明显'],f.back,'alert',['','warn','bad'])}</div>
-    <div class="mini-row">${mini('steps','步数','',f.steps)}${mini('sleep','睡眠','h',f.sleep)}${mini('water','喝水','L',f.water)}</div>
-    <textarea class="note" id="noteInput" placeholder="备注：今天状态、外卖吃了啥、训练加重…">${f.note||''}</textarea>
     ${rec?`<div class="saved-banner">${I.check} 今天已打卡，改完可再次保存</div>`:''}
     <button class="submit ${rec?'done':''}" id="submitBtn">${I.check}<span>${rec?'更新今日打卡':'保存今日打卡'}</span></button>`;
   bindToday();updateDelta();
