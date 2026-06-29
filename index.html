@@ -399,7 +399,7 @@ const CK='fengfit.checkins.v2', CFGK='fengfit.config.v1', ROLEK='fengfit.role';
 /* —— 默认配置（教练可在「设计」页改，真实值存云端，不留在代码里） —— */
 const DEFAULTS={
   profile:{ name:'冯总', age:30, height:189, start_date:'2026-06-29', start_weight:102, target_weight:85 },
-  quota:{ train:{carb:205,protein:155,fat:60}, rest:{carb:180,protein:155,fat:60} },
+  quota:{ train:{carb:245,protein:133,fat:60}, rest:{carb:214,protein:133,fat:60} },
   plan:{
     core:[['90-90 呼吸 / 三腔对位','2×5 次呼吸'],['改良卷腹(麦吉尔)','3×8'],['侧平板支撑','3×20-30秒/侧'],['鸟狗','3×8/侧'],['死虫','3×8/侧'],['帕洛夫抗旋推','3×10/侧'],['农夫行走','3×20米']],
     A:[['器械推胸 / 哑铃卧推','水平推','3-4×8-12'],['胸部支撑哑铃划船','水平拉·腰不受力','3-4×10-12'],['高位下拉','垂直拉·进阶引体','3-4×8-12'],['坐姿哑铃肩推','有靠背','2-3×10-12'],['面拉','改善圆肩','2-3×15']],
@@ -543,6 +543,9 @@ const TIPS=[
  "学会用“碳蛋脂”的眼光看饭：米面薯果=碳水，瘦肉蛋奶=蛋白，油/肥肉/坚果=脂肪。能这样拆，你就会自己判断该吃多少。",
  "体重掉得快≈掉水，不是掉脂肪。少吃碳水(糖原带水)、吃太淡(低钠)都会几天掉两三斤——全是水，一恢复就回来。",
  "真脂肪掉得慢：一天才分解 30-50g。别被头几天狂掉秤冲昏、也别被某天回涨吓到，只看一周平均趋势。",
+ "碳=能量(撑训练、护肌肉)，蛋=修肌肉最扛饿，脂=合成激素吸收维生素。三个各管一摊，谁缺了身体都出问题。",
+ "光看热量不够、比例更重要：同样2000大卡，蛋白不够会掉肌肉、碳水不够会垮、脂肪不够激素乱。所以盯的是碳蛋脂三个配额。",
+ "应吃热量 = 平衡热量 ×0.8(留20%缺口) ×0.8(对冲不自觉多吃) = 平衡×0.64。算出来看着低，实际你吃进去的比这多。",
 ];
 function tipCardHTML(){ if(state.tipIdx==null){const d=new Date();state.tipIdx=(d.getFullYear()*372+d.getMonth()*31+d.getDate())%TIPS.length;} return `<div class="tip" id="tipCard"><div class="tip-h">💡 健身小知识</div><div class="tip-b">${TIPS[state.tipIdx]}</div><div class="tip-n">轻点换一条 →</div></div>`; }
 
@@ -645,7 +648,8 @@ function renderDiet(){
     ${meals.map(m=>mealCard(m,f.foods)).join('')}
     <div class="diet-foot">📌 晚饭后练：晚饭只当“练前垫肚子”（几根香蕉），<b>练后餐才是全天最大的一顿</b>、当正餐吃。</div>
     <div class="section-h"><h3>怎么吃 · 要点</h3><div class="ln"></div></div>
-    ${accordion(`🥑 脂肪怎么吃（不用记，但要够 ${q.fat}g）`,qlist([['怎么算够','早饭蛋黄+牛奶 + 正餐带点油的瘦肉菜，脂肪就正好够，不用单独记或称'],['会缺乏','若早饭不吃蛋奶、正餐又全吃水煮无油菜 → 补 30g坚果 / 3个全蛋 / 1盒全脂奶'],['会超标','肥肉、油炸、糖油混合物(蛋糕奶茶) → 脂肪爆表，要躲开']]),true)}
+    ${accordion('🧬 碳蛋脂是干嘛的（少了/多了会怎样）',qlist([['碳水','给身体和大脑能量、撑训练、护肌肉。少了→没劲犯困、掉肌肉、易暴食；多了→超出的转脂肪、血糖大起大落更饿'],['蛋白','修肌肉、最扛饿、保住减脂期的肌肉。少了→掉肌肉、代谢降、易饿、免疫差掉发；多了→一般没事，极端过量加重肾负担'],['脂肪','合成激素(睾酮)、吸收维生素ADEK、必需。少了→激素乱、皮肤差、总是饿；多了→热量密度最高(9卡/g)极易长胖'],['关键','光看热量不够！同样2000大卡，蛋白不够掉肌肉、碳水不够会垮、脂肪不够激素乱——三个配额都要达标']]),true)}
+    ${accordion(`🥑 脂肪怎么吃（不用记，但要够 ${q.fat}g）`,qlist([['怎么算够','早饭蛋黄+牛奶 + 正餐带点油的瘦肉菜，脂肪就正好够，不用单独记或称'],['会缺乏','若早饭不吃蛋奶、正餐又全吃水煮无油菜 → 补 30g坚果 / 3个全蛋 / 1盒全脂奶'],['会超标','肥肉、油炸、糖油混合物(蛋糕奶茶) → 脂肪爆表，要躲开']]))}
     ${accordion('🍎 水果怎么吃（必须置换主食）',qlist([['铁律','吃水果一定要定量置换等额碳水的主食——吃了水果，就少吃对应量的米饭'],['为什么','主食扛饿，水果是“糖水”、饱腹感很低；大量拿水果换主食 → 果糖超标 + 越吃越饿'],['用量','别把水果当主要碳水来源，每天一个拳头大小就够(算进碳水)']]))}
     ${accordion('🥦 蔬菜怎么吃（不限量）',qlist([['量','不限量，每天尽量都吃，先吃菜后吃碳水更扛饿、压血糖(练后餐相反)'],['注意','红薯/土豆/玉米/山药是主食、不是菜']]))}
     ${accordion('🚶 吃多了 / 饿了 → 加一次有氧',qlist([['吃多了','今天超了就加一次有氧补回来：快走30分钟≈150大卡，游泳更高'],['饿了','饿就加有氧、把配额提上来多吃点：每多耗100大卡 ≈ 多吃 80g米饭 / 80g瘦肉 / 一个水果 / 1.5个蛋 / 大半盒奶 / 20g坚果'],['平时','你102kg大体重平时不用专门有氧，就这两种情况才加']]))}`;
@@ -848,7 +852,8 @@ function renderDesign(){
       ${dfield('身高 cm','p_height',P.height)}${dfield('年龄','p_age',P.age)}
       ${dfield('起始体重 kg','p_sw',P.start_weight)}${dfield('目标体重 kg','p_tw',P.target_weight)}
       ${dfield('起始日期','p_sd',P.start_date,'date')}<div></div></div>
-      <div class="calc">公式估算：基础代谢 <b>${sug.bmr}</b> · 应吃热量(力训日) <b>${sug.eat}</b> kcal<br>建议配额 力训日 碳<b>${sug.train.carb}</b>/蛋<b>${sug.train.protein}</b>/脂<b>${sug.train.fat}</b>，休息日 碳<b>${sug.rest.carb}</b>
+      <div class="calc"><b>热量设计（松松法）</b><br>基础代谢 <b>${sug.bmr}</b> → 无运动消耗 <b>${sug.b}</b>(÷0.7) → 平衡热量 力训<b>${sug.e1}</b>/休息<b>${sug.e2}</b>(+力训150) → <b>应吃热量=平衡×0.8×0.8</b>=力训<b>${sug.f1}</b>/休息<b>${sug.f2}</b> kcal<br><span style="color:var(--ink-3)">×0.8 留20%缺口，再×0.8 对冲不自觉多吃的热量；看着低，实际吃得比这多</span><br>
+        配额(按g/kg)：碳水 力训2.4/休息2.1 · 蛋白1.3 · 脂肪60 → 力训 碳<b>${sug.train.carb}</b>/蛋<b>${sug.train.protein}</b>/脂<b>${sug.train.fat}</b>，休息 碳<b>${sug.rest.carb}</b>/蛋<b>${sug.rest.protein}</b>
         <br><button class="applybtn" id="applySug">套用建议配额 ↓</button></div></div>
     <div class="dgroup"><h3>② 每日配额</h3>
       <div class="qedit"><div></div><div class="hd">碳水g</div><div class="hd">蛋白g</div><div class="hd">脂肪g</div>
@@ -876,10 +881,10 @@ function collectDesign(){
   saveLS(CFGK,state.cfg);
 }
 function suggest(p){
-  const bmr=p.start_weight*9.99+p.height*6.25-p.age*4.92+5,b=bmr/0.7,e1=b+150,e2=b,f1=e1*0.64,f2=e2*0.64;
-  const fat=60,prot=Math.round(p.start_weight*1.5/5)*5;
-  const ct=Math.max(0,Math.round((f1-fat*9-prot*4)/4/5)*5),cr=Math.max(0,Math.round((f2-fat*9-prot*4)/4/5)*5);
-  return {bmr:Math.round(bmr),eat:Math.round(f1),train:{carb:ct,protein:prot,fat},rest:{carb:cr,protein:prot,fat}};
+  const w=p.start_weight, bmr=w*9.99+p.height*6.25-p.age*4.92+5, b=bmr/0.7, e1=b+150, e2=b, f1=e1*0.64, f2=e2*0.64, fat=60;
+  return {bmr:Math.round(bmr), b:Math.round(b), e1:Math.round(e1), e2:Math.round(e2), f1:Math.round(f1), f2:Math.round(f2),
+    train:{carb:Math.round(w*2.4), protein:Math.round(w*1.3), fat},
+    rest:{carb:Math.round(w*2.1), protein:Math.round(w*1.3), fat}};
 }
 
 /* ============ 角色 / 导航 / toast ============ */
