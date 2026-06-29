@@ -138,6 +138,7 @@ textarea.note::placeholder{color:var(--ink-3);}
 .kcal{margin-top:var(--s3);padding-top:var(--s3);border-top:1px dashed var(--line);font-size:13px;color:var(--ink-2);font-weight:600;}
 .kcal b{font-family:var(--font-num);font-size:17px;color:var(--clay-d);}
 .kcal span{font-size:11px;color:var(--ink-3);font-weight:500;}
+.overnote{margin-top:var(--s3);font-size:12px;color:var(--clay-d);background:var(--clay-soft);padding:9px 12px;border-radius:var(--r-sm);font-weight:600;line-height:1.5;}
 .foodlist{margin-top:var(--s2);}
 .fitem{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;border-top:1px solid var(--line);}
 .fitem .fn{flex:1;font-size:14px;font-weight:500;}
@@ -543,7 +544,7 @@ function tipCardHTML(){ if(state.tipIdx==null){const d=new Date();state.tipIdx=(
 
 /* —— 每餐配额拆分（按松松晚饭后练餐序，比例 × 当日配额自动计算） —— */
 const MEAL_SPLIT={
-  train:[{name:'早饭',c:0.20,p:0.18,hint:'鸡蛋2-3个 + 牛奶1盒 + 燕麦/全麦面包'},{name:'午饭',c:0.30,p:0.32,hint:null},{name:'晚饭·练前',c:0.27,p:0.18,hint:'练前1.5h吃完，七分饱别吃撑'},{name:'练后餐',c:0.23,p:0.32,hint:'练后30分钟内：蛋白粉1勺+水果，或即食鸡胸'}],
+  train:[{name:'早饭',c:0.22,p:0.22,hint:'鸡蛋2-3个 + 牛奶1盒 + 燕麦/全麦面包'},{name:'午饭',c:0.28,p:0.33,hint:null},{name:'晚饭·练前',c:0.15,p:0,hint:'只是垫肚子：约6点吃几根香蕉/少量主食就行，别吃饱(七分饱以下)，练前1.5h吃完，不用吃蛋白'},{name:'练后餐',c:0.35,p:0.45,hint:'全天最大一顿、当正餐吃：米饭+瘦肉，练完30分钟内吃上'}],
   rest:[{name:'早饭',c:0.22,p:0.22,hint:'鸡蛋2-3个 + 牛奶1盒 + 燕麦'},{name:'午饭',c:0.40,p:0.40,hint:null},{name:'晚饭',c:0.38,p:0.38,hint:null}],
 };
 function dayMeals(isRest,q){return MEAL_SPLIT[isRest?'rest':'train'].map(m=>({name:m.name,hint:m.hint,c:Math.round(q.carb*m.c),p:Math.round(q.protein*m.p)}));}
@@ -636,9 +637,14 @@ function renderDiet(){
   const meals=dayMeals(isRest,q);
   $('#view-diet').innerHTML=`<div class="eyebrow">${WK[d.getDay()]} · ${isRest?'休息日':'力训日'}</div><h2 class="title">今日饮食</h2>
     <p class="sub">照着每餐配额点外卖 · 选食物自动算碳水蛋白</p>
-    <div class="diet-card"><div class="hd"><h3>今日合计</h3><div class="day">${isRest?'休息日配额':'力训日配额'}</div></div>${mbar('carb','碳水',cT,q.carb)}${mbar('prot','蛋白',pT,q.protein)}<div class="kcal">今日已记 ≈ <b>${Math.round(cT*4+pT*4)}</b> 大卡 <span>· 全天约 ${q.carb*4+q.protein*4+q.fat*9}（≈${Math.round((q.carb*4+q.protein*4+q.fat*9)/200)} 碗米饭，含脂肪）</span></div></div>
+    <div class="diet-card"><div class="hd"><h3>今日合计</h3><div class="day">${isRest?'休息日配额':'力训日配额'}</div></div>${mbar('carb','碳水',cT,q.carb)}${mbar('prot','蛋白',pT,q.protein)}<div class="kcal">今日已记 ≈ <b>${Math.round(cT*4+pT*4)}</b> 大卡 <span>· 全天约 ${q.carb*4+q.protein*4+q.fat*9}（≈${Math.round((q.carb*4+q.protein*4+q.fat*9)/200)} 碗米饭，含脂肪）</span></div>${cT>q.carb+20?`<div class="overnote">⚠️ 碳水吃超约 ${Math.round(cT-q.carb)}g，建议加一次有氧（快走30分钟/游泳）补回来</div>`:''}</div>
     ${meals.map(m=>mealCard(m,f.foods)).join('')}
-    <div class="diet-foot">脂肪不用单独记：每天约 ${q.fat}g，吃带油瘦肉菜 + 早饭蛋奶即够 · 蔬菜不限量、先吃菜后吃碳水</div>`;
+    <div class="diet-foot">📌 晚饭后练：晚饭只当“练前垫肚子”（几根香蕉），<b>练后餐才是全天最大的一顿</b>、当正餐吃。</div>
+    <div class="section-h"><h3>怎么吃 · 要点</h3><div class="ln"></div></div>
+    ${accordion(`🥑 脂肪怎么吃（不用记，但要够 ${q.fat}g）`,qlist([['怎么算够','早饭蛋黄+牛奶 + 正餐带点油的瘦肉菜，脂肪就正好够，不用单独记或称'],['会缺乏','若早饭不吃蛋奶、正餐又全吃水煮无油菜 → 补 30g坚果 / 3个全蛋 / 1盒全脂奶'],['会超标','肥肉、油炸、糖油混合物(蛋糕奶茶) → 脂肪爆表，要躲开']]),true)}
+    ${accordion('🍎 水果怎么吃（必须置换主食）',qlist([['铁律','吃水果一定要定量置换等额碳水的主食——吃了水果，就少吃对应量的米饭'],['为什么','主食扛饿，水果是“糖水”、饱腹感很低；大量拿水果换主食 → 果糖超标 + 越吃越饿'],['用量','别把水果当主要碳水来源，每天一个拳头大小就够(算进碳水)']]))}
+    ${accordion('🥦 蔬菜怎么吃（不限量）',qlist([['量','不限量，每天尽量都吃，先吃菜后吃碳水更扛饿、压血糖(练后餐相反)'],['注意','红薯/土豆/玉米/山药是主食、不是菜']]))}
+    ${accordion('🚶 吃多了 / 饿了 → 加一次有氧',qlist([['吃多了','今天超了就加一次有氧补回来：快走30分钟≈150大卡，游泳更高'],['饿了','饿就加有氧、把配额提上来多吃点：每多耗100大卡 ≈ 多吃 80g米饭 / 80g瘦肉 / 一个水果 / 1.5个蛋 / 大半盒奶 / 20g坚果'],['平时','你102kg大体重平时不用专门有氧，就这两种情况才加']]))}`;
   $('#view-diet').querySelectorAll('[data-addmeal]').forEach(b=>b.onclick=()=>openFoodSheet(b.dataset.addmeal));
   $('#view-diet').querySelectorAll('.fitem .del').forEach(b=>b.onclick=()=>removeFood(+b.dataset.i));
 }
